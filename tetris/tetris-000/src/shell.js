@@ -1,13 +1,13 @@
 import { emitKeypressEvents } from 'node:readline';
 import { createBoard, renderBoard } from './board.js';
-import { movePiece, rotatePiece, spawnPiece } from './pieces.js';
-import { stepDown } from './gravity.js';
+import { createPieceBag, movePiece, rotatePiece, spawnPiece } from './pieces.js';
+import { hardDrop, stepDown } from './gravity.js';
 
 export function renderShell({ board = createBoard(), activePiece = spawnPiece(), score = 0, lines = 0 } = {}) {
   return [
     `TETRIS Score: ${score} Lines: ${lines}`,
     renderBoard(board, activePiece),
-    '←→ move ↑ turn ↓ Ctrl+C',
+    '←→ ↑ ↓ Space:drop Ctrl+C',
   ].join('\n');
 }
 
@@ -15,7 +15,8 @@ export function startShell({
   input = process.stdin,
   output = process.stdout,
   board = createBoard(),
-  activePiece = spawnPiece(),
+  nextPiece = createPieceBag(),
+  activePiece = nextPiece(),
   gravityMs = 1000,
   score = 0,
   lines = 0,
@@ -27,6 +28,12 @@ export function startShell({
   function onKeypress(text, key) {
     if (key?.ctrl && key.name === 'c') {
       stop();
+      return;
+    }
+    if (key?.name === 'space') {
+      if (!activePiece) return;
+      ({ board, activePiece, score, lines } = hardDrop(board, activePiece, { score, lines, nextPiece }));
+      draw();
       return;
     }
     if (key?.name === 'down') {
@@ -54,7 +61,7 @@ export function startShell({
   }
   function descend() {
     if (!activePiece) return;
-    ({ board, activePiece, score, lines } = stepDown(board, activePiece, { score, lines }));
+    ({ board, activePiece, score, lines } = stepDown(board, activePiece, { score, lines, nextPiece }));
     draw();
   }
   input.on('keypress', onKeypress);

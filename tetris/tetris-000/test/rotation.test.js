@@ -71,14 +71,14 @@ test('walls and floor reject rotations when horizontal kicks cannot help', () =>
 test('raw up arrow rotates and redraws within the 24-row display', () => {
   const input = new PassThrough();
   const frames = [];
-  const stop = startShell({ input, output: { write: text => frames.push(text) } });
+  const stop = startShell({ activePiece: spawnPiece(), input, output: { write: text => frames.push(text) } });
   try {
     input.write('\x1b[A');
     const expected = renderShell({ activePiece: rotatePiece(createBoard(), spawnPiece()) });
     assert.equal(frames.at(-1), expected);
     assert.equal(expected.split('\n').length, 24);
     assert.ok(expected.split('\n').every(row => row.length <= 24));
-    assert.match(expected, /↑ turn/);
+    assert.match(expected, /↑/);
   } finally {
     stop();
     input.destroy();

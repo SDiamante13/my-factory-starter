@@ -53,7 +53,7 @@ test('blocked spawn leaves the stack intact and no active piece', () => {
 test('Down arrow and timer both descend; stopping cancels gravity', async () => {
   const input = new PassThrough();
   const frames = [];
-  const stop = startShell({ input, gravityMs: 20, output: { write: frame => frames.push(frame) } });
+  const stop = startShell({ activePiece: spawnPiece(), input, gravityMs: 20, output: { write: frame => frames.push(frame) } });
   try {
     input.write('\x1b[B');
     assert.equal(frames.at(-1), renderShell({ activePiece: { ...spawnPiece(), y: 1 } }));

@@ -42,7 +42,7 @@ test('raw arrow sequences redraw the moved piece and raw Ctrl+C restores input',
   input.isRaw = true;
   input.setRawMode = value => { input.isRaw = value; };
   const frames = [];
-  const stop = startShell({ input, output: { isTTY: true, write: text => frames.push(text) } });
+  const stop = startShell({ activePiece: spawnPiece(), input, output: { isTTY: true, write: text => frames.push(text) } });
   try {
     input.write('\x1b[D');
     input.write('\x1b[C');

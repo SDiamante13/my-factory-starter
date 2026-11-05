@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import test from 'node:test';
 import { PassThrough } from 'node:stream';
 import { renderShell, startShell } from '../src/shell.js';
+import { spawnPiece } from '../src/pieces.js';
 
 test('shell fits within 24 terminal rows', () => {
   const display = renderShell();
@@ -24,6 +25,7 @@ test('terminal state is restored when stopped, exactly once', () => {
   input.setRawMode = value => { input.isRaw = value; rawModes.push(value); };
   input.on('pause', () => { paused = true; });
   const stop = startShell({
+    activePiece: spawnPiece(),
     input,
     output: { isTTY: true, write(text) { display += text; } },
   });

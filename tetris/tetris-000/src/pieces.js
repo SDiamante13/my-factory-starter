@@ -11,6 +11,21 @@ export const TETROMINOES = {
   L: [[2, 0], [0, 1], [1, 1], [2, 1]],
 };
 
+// Each bag contains all seven types exactly once (Fisher–Yates shuffle).
+export function createPieceBag(random = Math.random) {
+  let bag = [];
+  return function nextPiece() {
+    if (bag.length === 0) {
+      bag = Object.keys(TETROMINOES);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+    }
+    return spawnPiece(bag.pop());
+  };
+}
+
 export function canPlacePiece(board, piece) {
   return piece.cells.every(([dx, dy]) => {
     const x = piece.x + dx;
