@@ -5,11 +5,15 @@ export function createBoard() {
   return Array.from({ length: BOARD_HEIGHT }, () => Array(BOARD_WIDTH).fill(null));
 }
 
-export function renderBoard(board = createBoard()) {
+export function renderBoard(board = createBoard(), activePiece = null) {
+  const activeCells = new Set(activePiece
+    ? activePiece.cells.map(([x, y]) => `${activePiece.x + x},${activePiece.y + y}`)
+    : []);
   const border = '+' + '-'.repeat(BOARD_WIDTH * 2) + '+';
   return [
     border,
-    ...board.map(row => '|' + row.map(cell => cell ? '[]' : '  ').join('') + '|'),
+    ...board.map((row, y) => '|' + row.map((cell, x) =>
+      cell || activeCells.has(`${x},${y}`) ? '[]' : '  ').join('') + '|'),
     border,
   ].join('\n');
 }

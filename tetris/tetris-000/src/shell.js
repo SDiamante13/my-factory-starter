@@ -1,9 +1,10 @@
-import { renderBoard } from './board.js';
+import { createBoard, renderBoard } from './board.js';
+import { spawnPiece } from './pieces.js';
 
-export function renderShell() {
+export function renderShell({ board = createBoard(), activePiece = spawnPiece() } = {}) {
   return [
     'TETRIS | Score: 0',
-    renderBoard(),
+    renderBoard(board, activePiece),
     'Ctrl+C: quit',
   ].join('\n');
 }
