@@ -1,16 +1,18 @@
+import { renderBoard } from './board.js';
+
 export function renderShell() {
   return [
-    'TETRIS',
-    'Score: 0',
-    'Ready — game coming soon',
-    'Controls: Ctrl+C to quit',
+    'TETRIS | Score: 0',
+    renderBoard(),
+    'Ctrl+C: quit',
   ].join('\n');
 }
 
 export function startShell({ input = process.stdin, output = process.stdout } = {}) {
   const terminal = Boolean(output.isTTY);
   if (terminal) output.write('\x1b[?1049h\x1b[?25l\x1b[2J\x1b[H');
-  output.write(renderShell() + '\n');
+  // No trailing newline: the final legend occupies row 24 without scrolling.
+  output.write(renderShell());
 
   // Keep the shell running even when standard input is redirected.
   const keepAlive = setInterval(() => {}, 1000);

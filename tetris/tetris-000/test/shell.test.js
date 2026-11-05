@@ -6,7 +6,8 @@ import { renderShell, startShell } from '../src/shell.js';
 
 test('shell fits within 24 terminal rows', () => {
   const display = renderShell();
-  assert.ok(display.split('\n').length + 1 <= 24);
+  assert.equal(display.split('\n').length, 24);
+  assert.ok(display.split('\n').every(row => row.length <= 24));
   assert.match(display, /TETRIS/);
   assert.match(display, /Score: 0/);
   assert.match(display, /Ctrl\+C/);
@@ -21,6 +22,9 @@ test('terminal state is restored when stopped, exactly once', () => {
   });
   try {
     assert.ok(display.startsWith('\x1b[?1049h\x1b[?25l'));
+    const visible = display.replace(/\x1b\[[?\d;]*[a-zA-Z]/g, '');
+    assert.equal(visible, renderShell());
+    assert.equal(visible.split('\n').length, 24);
     stop();
     const afterStop = display;
     stop();
