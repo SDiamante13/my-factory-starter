@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+import test from 'node:test';
+import { renderShell, startShell } from '../src/shell.js';
+
+test('shell fits within 24 terminal rows', () => {
+  const display = renderShell();
+  assert.ok(display.split('\n').length + 1 <= 24);
+  assert.match(display, /TETRIS/);
+  assert.match(display, /Score: 0/);
+  assert.match(display, /Ctrl\+C/);
+});
+
+test('terminal state is restored when stopped, exactly once', () => {
+  let display = '';
+  let paused = false;
+  const stop = startShell({
+    input: { resume() {}, pause() { paused = true; } },
+    output: { isTTY: true, write(text) { display += text; } },
+  });
+  try {
+    assert.ok(display.startsWith('\x1b[?1049h\x1b[?25l'));
+    stop();
+    const afterStop = display;
+    stop();
+    assert.equal(display, afterStop);
+    assert.ok(display.endsWith('\x1b[?25h\x1b[?1049l'));
+    assert.ok(paused);
+  } finally {
+    stop();
+  }
+});
+
+test('application exits cleanly on Ctrl+C signal', { timeout: 5000 }, async () => {
+  const child = spawn(process.execPath, ['src/index.js'], { stdio: ['pipe', 'pipe', 'pipe'] });
+  try {
+    const exited = once(child, 'exit');
+    const [output] = await once(child.stdout, 'data');
+    assert.match(output.toString(), /TETRIS/);
+    child.kill('SIGINT');
+    const [code, signal] = await exited;
+    assert.equal(code, 0);
+    assert.equal(signal, null);
+  } finally {
+    if (child.exitCode === null) child.kill('SIGKILL');
+  }
+});
