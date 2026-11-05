@@ -4,7 +4,7 @@
 - [x] Add a 10-column, 20-row empty board renderer with borders, score, and a compact controls legend, with tests confirming the complete display never exceeds 24 rows.
 - [x] Define all seven tetrominoes and add spawning and active-piece rendering on the board, with tests for piece shapes and spawn positions.
 - [x] Add raw keyboard input for left and right movement, enforce board and occupied-cell collisions, and restore terminal settings on exit; test movement boundaries.
-- [ ] Add timed gravity and soft drop, locking pieces when they land and spawning the next piece; test landing and stacking behavior.
+- [x] Add timed gravity and soft drop, locking pieces when they land and spawning the next piece; test landing and stacking behavior.
 - [ ] Add keyboard rotation with collision checks and simple wall kicks, with tests covering successful rotations and blocked rotations near walls and stacks.
 - [ ] Clear completed rows after locking, collapse the remaining board, and update the displayed score and line count; test single and multiple simultaneous line clears.
 - [ ] Add hard drop and a shuffled seven-piece bag, update the controls legend, and test drop placement and bag contents.
