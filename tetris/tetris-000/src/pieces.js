@@ -1,4 +1,4 @@
-import { BOARD_WIDTH } from './board.js';
+import { BOARD_WIDTH, BOARD_HEIGHT } from './board.js';
 
 // Spawn orientations, stored as occupied [column, row] offsets.
 export const TETROMINOES = {
@@ -10,6 +10,19 @@ export const TETROMINOES = {
   J: [[0, 0], [0, 1], [1, 1], [2, 1]],
   L: [[2, 0], [0, 1], [1, 1], [2, 1]],
 };
+
+export function canPlacePiece(board, piece) {
+  return piece.cells.every(([dx, dy]) => {
+    const x = piece.x + dx;
+    const y = piece.y + dy;
+    return x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT && !board[y][x];
+  });
+}
+
+export function movePiece(board, piece, dx) {
+  const moved = { ...piece, x: piece.x + dx };
+  return canPlacePiece(board, moved) ? moved : piece;
+}
 
 export function spawnPiece(type = 'T') {
   if (!Object.hasOwn(TETROMINOES, type)) {

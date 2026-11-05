@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import test from 'node:test';
+import { PassThrough } from 'node:stream';
 import { renderShell, startShell } from '../src/shell.js';
 
 test('shell fits within 24 terminal rows', () => {
@@ -16,8 +17,14 @@ test('shell fits within 24 terminal rows', () => {
 test('terminal state is restored when stopped, exactly once', () => {
   let display = '';
   let paused = false;
+  const input = new PassThrough();
+  input.isTTY = true;
+  input.isRaw = false;
+  const rawModes = [];
+  input.setRawMode = value => { input.isRaw = value; rawModes.push(value); };
+  input.on('pause', () => { paused = true; });
   const stop = startShell({
-    input: { resume() {}, pause() { paused = true; } },
+    input,
     output: { isTTY: true, write(text) { display += text; } },
   });
   try {
@@ -31,6 +38,8 @@ test('terminal state is restored when stopped, exactly once', () => {
     assert.equal(display, afterStop);
     assert.ok(display.endsWith('\x1b[?25h\x1b[?1049l'));
     assert.ok(paused);
+    assert.deepEqual(rawModes, [true, false]);
+    assert.equal(input.listenerCount('keypress'), 0);
   } finally {
     stop();
   }
