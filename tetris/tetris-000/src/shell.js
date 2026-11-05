@@ -1,13 +1,13 @@
 import { emitKeypressEvents } from 'node:readline';
 import { createBoard, renderBoard } from './board.js';
-import { createPieceBag, movePiece, rotatePiece, spawnPiece } from './pieces.js';
+import { canPlacePiece, createPieceBag, movePiece, rotatePiece, spawnPiece } from './pieces.js';
 import { hardDrop, stepDown } from './gravity.js';
 
-export function renderShell({ board = createBoard(), activePiece = spawnPiece(), score = 0, lines = 0 } = {}) {
+export function renderShell({ board = createBoard(), activePiece = spawnPiece(), score = 0, lines = 0, paused = false } = {}) {
   return [
     `TETRIS Score: ${score} Lines: ${lines}`,
     renderBoard(board, activePiece),
-    '←→ ↑ ↓ Space:drop Ctrl+C',
+    !activePiece ? 'GAME OVER R:new Q:quit' : paused ? 'PAUSED P:resume Q:quit' : '←→↑↓ Space P R Q Ctrl+C',
   ].join('\n');
 }
 
@@ -21,15 +21,32 @@ export function startShell({
   score = 0,
   lines = 0,
 } = {}) {
+  let paused = false;
+  if (activePiece && !canPlacePiece(board, activePiece)) activePiece = null;
   const terminal = Boolean(output.isTTY);
   const wasRaw = Boolean(input.isRaw);
   emitKeypressEvents(input);
   if (input.isTTY) input.setRawMode(true);
   function onKeypress(text, key) {
-    if (key?.ctrl && key.name === 'c') {
+    if ((key?.ctrl && key.name === 'c') || key?.name === 'q') {
       stop();
       return;
     }
+    if (key?.name === 'r') {
+      board = createBoard();
+      activePiece = nextPiece();
+      score = 0;
+      lines = 0;
+      paused = false;
+      draw();
+      return;
+    }
+    if (key?.name === 'p' && activePiece) {
+      paused = !paused;
+      draw();
+      return;
+    }
+    if (paused || !activePiece) return;
     if (key?.name === 'space') {
       if (!activePiece) return;
       ({ board, activePiece, score, lines } = hardDrop(board, activePiece, { score, lines, nextPiece }));
@@ -57,10 +74,10 @@ export function startShell({
     draw();
   }
   function draw() {
-    output.write((terminal ? '\x1b[H' : '') + renderShell({ board, activePiece, score, lines }));
+    output.write((terminal ? '\x1b[H' : '') + renderShell({ board, activePiece, score, lines, paused }) + (terminal ? '\x1b[J' : ''));
   }
   function descend() {
-    if (!activePiece) return;
+    if (paused || !activePiece) return;
     ({ board, activePiece, score, lines } = stepDown(board, activePiece, { score, lines, nextPiece }));
     draw();
   }

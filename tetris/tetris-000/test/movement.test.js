@@ -49,8 +49,8 @@ test('raw arrow sequences redraw the moved piece and raw Ctrl+C restores input',
     await new Promise(resolve => setImmediate(resolve));
     const moved = spawnPiece();
     moved.x--;
-    assert.equal(frames[2], '\x1b[H' + renderShell({ activePiece: moved }));
-    assert.equal(frames[3], '\x1b[H' + renderShell());
+    assert.equal(frames[2], '\x1b[H' + renderShell({ activePiece: moved }) + '\x1b[J');
+    assert.equal(frames[3], '\x1b[H' + renderShell() + '\x1b[J');
     input.write('\x03');
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(input.isRaw, true); // Preserve pre-existing raw mode.

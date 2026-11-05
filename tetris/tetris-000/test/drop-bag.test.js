@@ -62,7 +62,7 @@ test('Space drops immediately and shell spawns from the same bag', () => {
     const expected = hardDrop(createBoard(), first, { nextPiece });
     assert.equal(frames.at(-1), renderShell(expected));
     assert.equal(frames.length, 2);
-    assert.match(frames[0], /Space:drop/);
+    assert.match(frames[0], /Space/);
     for (const frame of frames) assert.equal(frame.split('\n').length, 24);
   } finally {
     stop();
