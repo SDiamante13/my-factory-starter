@@ -1,12 +1,13 @@
 import { emitKeypressEvents } from 'node:readline';
 import { createBoard, renderBoard } from './board.js';
 import { movePiece, spawnPiece } from './pieces.js';
+import { stepDown } from './gravity.js';
 
 export function renderShell({ board = createBoard(), activePiece = spawnPiece() } = {}) {
   return [
     'TETRIS | Score: 0',
     renderBoard(board, activePiece),
-    '←/→: move | Ctrl+C: quit',
+    '←→ move ↓ drop Ctrl+C',
   ].join('\n');
 }
 
@@ -15,6 +16,7 @@ export function startShell({
   output = process.stdout,
   board = createBoard(),
   activePiece = spawnPiece(),
+  gravityMs = 1000,
 } = {}) {
   const terminal = Boolean(output.isTTY);
   const wasRaw = Boolean(input.isRaw);
@@ -25,23 +27,34 @@ export function startShell({
       stop();
       return;
     }
+    if (key?.name === 'down') {
+      descend();
+      return;
+    }
     const dx = key?.name === 'left' ? -1 : key?.name === 'right' ? 1 : 0;
-    if (!dx) return;
+    if (!dx || !activePiece) return;
     const moved = movePiece(board, activePiece, dx);
     if (moved === activePiece) return;
     activePiece = moved;
+    draw();
+  }
+  function draw() {
     output.write((terminal ? '\x1b[H' : '') + renderShell({ board, activePiece }));
+  }
+  function descend() {
+    if (!activePiece) return;
+    ({ board, activePiece } = stepDown(board, activePiece));
+    draw();
   }
   input.on('keypress', onKeypress);
 
-  // Keep the shell running even when standard input is redirected.
-  const keepAlive = setInterval(() => {}, 1000);
+  const gravity = setInterval(descend, gravityMs);
   input.resume();
   let stopped = false;
   function stop() {
     if (stopped) return;
     stopped = true;
-    clearInterval(keepAlive);
+    clearInterval(gravity);
     input.removeListener('keypress', onKeypress);
     if (input.isTTY) input.setRawMode(wasRaw);
     input.pause();
