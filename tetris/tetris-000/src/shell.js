@@ -3,9 +3,9 @@ import { createBoard, renderBoard } from './board.js';
 import { movePiece, rotatePiece, spawnPiece } from './pieces.js';
 import { stepDown } from './gravity.js';
 
-export function renderShell({ board = createBoard(), activePiece = spawnPiece() } = {}) {
+export function renderShell({ board = createBoard(), activePiece = spawnPiece(), score = 0, lines = 0 } = {}) {
   return [
-    'TETRIS | Score: 0',
+    `TETRIS Score: ${score} Lines: ${lines}`,
     renderBoard(board, activePiece),
     '←→ move ↑ turn ↓ Ctrl+C',
   ].join('\n');
@@ -17,6 +17,8 @@ export function startShell({
   board = createBoard(),
   activePiece = spawnPiece(),
   gravityMs = 1000,
+  score = 0,
+  lines = 0,
 } = {}) {
   const terminal = Boolean(output.isTTY);
   const wasRaw = Boolean(input.isRaw);
@@ -48,11 +50,11 @@ export function startShell({
     draw();
   }
   function draw() {
-    output.write((terminal ? '\x1b[H' : '') + renderShell({ board, activePiece }));
+    output.write((terminal ? '\x1b[H' : '') + renderShell({ board, activePiece, score, lines }));
   }
   function descend() {
     if (!activePiece) return;
-    ({ board, activePiece } = stepDown(board, activePiece));
+    ({ board, activePiece, score, lines } = stepDown(board, activePiece, { score, lines }));
     draw();
   }
   input.on('keypress', onKeypress);
@@ -78,6 +80,6 @@ export function startShell({
   // Publish the initial frame only after input and cleanup handlers are ready.
   // No trailing newline: the final legend occupies row 24 without scrolling.
   if (terminal) output.write('\x1b[?1049h\x1b[?25l\x1b[2J\x1b[H');
-  output.write(renderShell({ board, activePiece }));
+  output.write(renderShell({ board, activePiece, score, lines }));
   return stop;
 }
