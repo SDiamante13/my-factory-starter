@@ -7,6 +7,6 @@
 - [x] Add timed gravity and soft drop, locking pieces when they land and spawning the next piece; test landing and stacking behavior.
 - [x] Add keyboard rotation with collision checks and simple wall kicks, with tests covering successful rotations and blocked rotations near walls and stacks.
 - [x] Clear completed rows after locking, collapse the remaining board, and update the displayed score and line count; test single and multiple simultaneous line clears.
-- [ ] Add hard drop and a shuffled seven-piece bag, update the controls legend, and test drop placement and bag contents.
+- [x] Add hard drop and a shuffled seven-piece bag, update the controls legend, and test drop placement and bag contents.
 - [ ] Add pause/resume, spawn-blocked game over, restart, and a quit key, keeping all status messages within the existing 24-row display; test these state transitions.
 - [ ] Add end-to-end terminal smoke tests for `npm start`, keyboard controls, display height across gameplay states, and terminal cleanup; document startup and controls and fix any issues found.
