@@ -24,6 +24,21 @@ export function movePiece(board, piece, dx) {
   return canPlacePiece(board, moved) ? moved : piece;
 }
 
+// Clockwise rotation in a fixed 3×3 frame (4×4 for I). O never changes.
+// Try small horizontal kicks only; floors and stacks still block rotation.
+export function rotatePiece(board, piece) {
+  if (piece.type === 'O') return piece;
+  const size = piece.type === 'I' ? 4 : 3;
+  const cells = piece.cells.map(([x, y]) => [size - 1 - y, x]);
+  // The spawn I occupies the top edge, so its vertical form can need 3 cells.
+  const kicks = piece.type === 'I' ? [0, -1, 1, -2, 2, -3, 3] : [0, -1, 1, -2, 2];
+  for (const dx of kicks) {
+    const rotated = { ...piece, x: piece.x + dx, cells };
+    if (canPlacePiece(board, rotated)) return rotated;
+  }
+  return piece;
+}
+
 export function spawnPiece(type = 'T') {
   if (!Object.hasOwn(TETROMINOES, type)) {
     throw new RangeError(`Unknown tetromino: ${type}`);

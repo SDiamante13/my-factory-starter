@@ -1,13 +1,13 @@
 import { emitKeypressEvents } from 'node:readline';
 import { createBoard, renderBoard } from './board.js';
-import { movePiece, spawnPiece } from './pieces.js';
+import { movePiece, rotatePiece, spawnPiece } from './pieces.js';
 import { stepDown } from './gravity.js';
 
 export function renderShell({ board = createBoard(), activePiece = spawnPiece() } = {}) {
   return [
     'TETRIS | Score: 0',
     renderBoard(board, activePiece),
-    '←→ move ↓ drop Ctrl+C',
+    '←→ move ↑ turn ↓ Ctrl+C',
   ].join('\n');
 }
 
@@ -29,6 +29,15 @@ export function startShell({
     }
     if (key?.name === 'down') {
       descend();
+      return;
+    }
+    if (key?.name === 'up') {
+      if (!activePiece) return;
+      const rotated = rotatePiece(board, activePiece);
+      if (rotated !== activePiece) {
+        activePiece = rotated;
+        draw();
+      }
       return;
     }
     const dx = key?.name === 'left' ? -1 : key?.name === 'right' ? 1 : 0;
