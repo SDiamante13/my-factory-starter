@@ -1,6 +1,6 @@
 # Terminal Tetris implementation plan
 
-- [ ] Set up a Node.js project with `npm start` that displays a terminal game shell and exits cleanly with Ctrl+C; keep its entire display within 24 rows.
+- [x] Set up a Node.js project with `npm start` that displays a terminal game shell and exits cleanly with Ctrl+C; keep its entire display within 24 rows.
 - [ ] Add a 10-column, 20-row empty board renderer with borders, score, and a compact controls legend, with tests confirming the complete display never exceeds 24 rows.
 - [ ] Define all seven tetrominoes and add spawning and active-piece rendering on the board, with tests for piece shapes and spawn positions.
 - [ ] Add raw keyboard input for left and right movement, enforce board and occupied-cell collisions, and restore terminal settings on exit; test movement boundaries.
